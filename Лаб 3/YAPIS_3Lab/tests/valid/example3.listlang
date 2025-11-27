@@ -1,0 +1,42 @@
+function complex_list_operations(data1, data2) {
+    result = [];
+    temp_tree = [];
+
+    for i = 0 to len(data1) - 1 {
+        current_element = data1[i];
+        transformed = ((current_element * 2) + (i * 3)) / 2;
+
+        if transformed > 10 && current_element in data2 {
+            result = result + [transformed];
+            temp_tree = temp_tree + [current_element];
+        } else {
+            result = result + [current_element];
+        }
+    }
+
+    if len(temp_tree) > 0 {
+        balanced_temp = balance(temp_tree);
+        result = merge(result, balanced_temp);
+    }
+
+    return result;
+}
+
+global_data = [8, 12, 5, 20, 3, 15];
+secondary_data = [5, 15, 25];
+final_result = complex_list_operations(global_data, secondary_data);
+write("Final result:");
+write(final_result);
+
+range_list = 1 .. 10;
+write("Range:");
+write(range_list);
+
+if len(final_result) > 2 {
+    first_element = final_result[0];
+    last_element = final_result[len(final_result) - 1];
+    write("First element:");
+    write(first_element);
+    write("Last element:");
+    write(last_element);
+}

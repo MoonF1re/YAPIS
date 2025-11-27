@@ -1,0 +1,2 @@
+result = x + y;
+write(result);

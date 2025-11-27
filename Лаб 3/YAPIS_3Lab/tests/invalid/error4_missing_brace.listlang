@@ -1,0 +1,6 @@
+function test()
+    x = 10;
+    return x;
+}
+
+write(test());

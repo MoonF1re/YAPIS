@@ -1,0 +1,39 @@
+# Объявление подпрограмм в начале программы
+function create_balanced_tree(elements):
+    tree = elements;
+    balanced_tree = balance(tree);
+    return balanced_tree;
+
+function process_queue(items):
+    queue = items;
+    result = [];
+    
+    i = 0;
+    until i >= len(queue):
+        current = queue[i];
+        if current % 2 == 0:
+            result = result + [current * 2];
+        else:
+            result = result + [current];
+        i = i + 1;
+    
+    return result;
+
+# Основной код
+elements = [10, 5, 15, 3, 7, 12, 18];
+
+# Создание и балансировка дерева
+balanced_tree = create_balanced_tree(elements);
+write("Сбалансированное дерево: ");
+write(balanced_tree);
+
+# Работа с очередью
+queue_data = [1, 2, 3, 4, 5, 6];
+processed_queue = process_queue(queue_data);
+write("Обработанная очередь: ");
+write(processed_queue);
+
+# Слияние структур
+merged_structure = merge(balanced_tree, processed_queue);
+write("Результат слияния: ");
+write(merged_structure);

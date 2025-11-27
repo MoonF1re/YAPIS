@@ -1,0 +1,35 @@
+function create_balanced_tree(elements) {
+    my_tree = elements;
+    balanced_result = balance(my_tree);
+    return balanced_result;
+}
+
+function process_queue(items) {
+    my_queue = items;
+    result = [];
+    i = 0;
+    until i >= len(my_queue) {
+        current = my_queue[i];
+        if current % 2 == 0 {
+            result = result + [current * 2];
+        } else {
+            result = result + [current];
+        }
+        i = i + 1;
+    }
+    return result;
+}
+
+elements = [10, 5, 15, 3, 7, 12, 18];
+balanced_tree = create_balanced_tree(elements);
+write("Balanced tree:");
+write(balanced_tree);
+
+queue_data = [1, 2, 3, 4, 5, 6];
+processed_queue = process_queue(queue_data);
+write("Processed queue:");
+write(processed_queue);
+
+merged_structure = merge(balanced_tree, processed_queue);
+write("Merged structure:");
+write(merged_structure);

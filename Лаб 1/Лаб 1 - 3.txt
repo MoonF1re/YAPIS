@@ -1,0 +1,49 @@
+# Демонстрация циклов и сложных выражений
+function complex_list_operations(data1, data2):
+    # Локальная область видимости
+    result = [];
+    temp_tree = [];
+    
+    # Цикл for с итерациями
+    for i = 0 to len(data1) - 1:
+        current_element = data1[i];
+        
+        # Сложное выражение со скобками
+        transformed = ((current_element * 2) + (i * 3)) / 2;
+        
+        # Условный оператор
+        if transformed > 10 and current_element in data2:
+            result = result + [transformed];
+            temp_tree = temp_tree + [current_element];
+        else:
+            result = result + [current_element];
+    
+    # Балансировка полученного дерева
+    if len(temp_tree) > 0:
+        balanced_temp = balance(temp_tree);
+        result = merge(result, balanced_temp);
+    
+    return result;
+
+# Глобальная переменная
+global_data = [8, 12, 5, 20, 3, 15];
+secondary_data = [5, 15, 25];
+
+# Вызов функции
+final_result = complex_list_operations(global_data, secondary_data);
+write("Финальный результат: ");
+write(final_result);
+
+# Создание диапазона
+range_list = 1..10;
+write("Диапазон: ");
+write(range_list);
+
+# Операции с индексами
+if len(final_result) > 2:
+    first_element = final_result[0];
+    last_element = final_result[len(final_result) - 1];
+    write("Первый элемент: ");
+    write(first_element);
+    write("Последний элемент: ");
+    write(last_element);

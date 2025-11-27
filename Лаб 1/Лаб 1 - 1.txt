@@ -1,0 +1,28 @@
+# Демонстрация неявного объявления переменных и базовых операций
+
+list1 = [1, 2, 3, 4, 5];
+list2 = [3, 4, 5, 6, 7];
+
+# Базовые операции со списками
+concatenated = list1 + list2;
+difference = list2 - list1;
+intersection = list1 * list2;
+
+write("Конкатенация: ");
+write(concatenated);
+write("Разность: ");
+write(difference);
+write("Пересечение: ");
+write(intersection);
+
+# Явное преобразование типов
+element_count = (int) len(concatenated);
+
+write("Количество элементов: ");
+write(element_count);
+
+# Проверка принадлежности
+if 5 in list1:
+    write("Элемент 5 найден в list1");
+else:
+    write("Элемент 5 не найден в list1");
