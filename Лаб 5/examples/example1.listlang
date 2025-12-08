@@ -1,0 +1,23 @@
+list1 = [1, 2, 3, 4, 5];
+list2 = [3, 4, 5, 6, 7];
+
+concatenated = list1 + list2;
+difference = list2 - list1;
+intersection = list1 * list2;
+
+write("Concatenation:");
+write(concatenated);
+write("Difference:");
+write(difference);
+write("Intersection:");
+write(intersection);
+
+element_count = len(concatenated);
+write("Number of elements:");
+write(element_count);
+
+if 5 in list1 {
+    write("Element 5 found in list1");
+} else {
+    write("Element 5 not found in list1");
+}

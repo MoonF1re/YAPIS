@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ListLang Compiler Test</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h1>ListLang Compiler Test</h1>
+
+    <div>
+        <h2>Примеры:</h2>
+        <button onclick="runExample(1)">Запустить пример 1</button>
+        <button onclick="runExample(2)">Запустить пример 2</button>
+        <button onclick="runExample(3)">Запустить пример 3</button>
+    </div>
+
+    <div>
+        <h2>Вывод:</h2>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        // Импорты для WebAssembly
+        const importObject = {
+            console: {
+                log: (ptr) => {
+                    console.log('List at:', ptr);
+                },
+                logInt: (value) => {
+                    const output = document.getElementById('output');
+                    output.textContent += value + '\n';
+                },
+                logFloat: (value) => {
+                    const output = document.getElementById('output');
+                    output.textContent += value + '\n';
+                },
+                logStr: (ptr, len) => {
+                    // Для простоты выводим только указатель
+                    const output = document.getElementById('output');
+                    output.textContent += `[String at ${ptr}, length: ${len}]\n`;
+                }
+            }
+        };
+
+        async function loadWasm(wasmFile) {
+            const response = await fetch(wasmFile);
+            const bytes = await response.arrayBuffer();
+            const { instance } = await WebAssembly.instantiate(bytes, importObject);
+            return instance;
+        }
+
+        async function runExample(num) {
+            const output = document.getElementById('output');
+            output.textContent = `=== Запуск примера ${num} ===\n`;
+
+            try {
+                const wasmFile = `example${num}.wasm`;
+                const instance = await loadWasm(wasmFile);
+
+                // Вызываем main функцию
+                if (instance.exports.main) {
+                    instance.exports.main();
+                } else {
+                    output.textContent += 'Функция main не найдена\n';
+                }
+            } catch (error) {
+                output.textContent += `Ошибка: ${error}\n`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "listlang-compiler",
+  "version": "1.0.0",
+  "description": "Компилятор ListLang в WebAssembly",
+  "scripts": {
+    "build": "python compiler.py example1.listlang example1.wat && wat2wasm example1.wat -o example1.wasm",
+    "test": "python run_example.py",
+    "server": "python -m http.server 8000"
+  },
+  "dependencies": {
+    "antlr4": "^4.13.0"
+  }
+}

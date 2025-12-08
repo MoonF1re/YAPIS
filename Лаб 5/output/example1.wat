@@ -1,0 +1,280 @@
+(module
+  (import "console" "log" (func $log (param i32)))
+  (import "console" "logInt" (func $logInt (param i32)))
+  (import "console" "logFloat" (func $logFloat (param f32)))
+  (import "console" "logStr" (func $logStr (param i32 i32)))
+  (memory (export "memory") 2)
+  (global $heap_ptr (mut i32) (i32.const 65536))
+  (global $list1 (mut i32) (i32.const 0))
+  (global $list2 (mut i32) (i32.const 0))
+  (global $concatenated (mut i32) (i32.const 0))
+  (global $difference (mut i32) (i32.const 0))
+  (global $intersection (mut i32) (i32.const 0))
+  (global $element_count (mut i32) (i32.const 0))
+  ;; Вспомогательные функции
+  (func $malloc (param $size i32) (result i32)
+    (local $ptr i32)
+    (global.get $heap_ptr)
+    (local.set $ptr)
+    (global.set $heap_ptr
+      (i32.add
+        (global.get $heap_ptr)
+        (local.get $size)
+      )
+    )
+    (local.get $ptr)
+  )
+
+  (func $list_create (param $len i32) (result i32)
+    (local $ptr i32)
+    ;; Выделяем память: длина + элементы
+    (local.set $ptr
+      (call $malloc
+        (i32.mul
+          (i32.add (local.get $len) (i32.const 1))
+          (i32.const 4)
+        )
+      )
+    )
+    ;; Сохраняем длину списка
+    (i32.store (local.get $ptr) (local.get $len))
+    (local.get $ptr)
+  )
+
+  (func $list_get (param $list i32) (param $index i32) (result i32)
+    (i32.load offset=4
+      (i32.add
+        (local.get $list)
+        (i32.mul (local.get $index) (i32.const 4))
+      )
+    )
+  )
+
+  (func $list_set (param $list i32) (param $index i32) (param $value i32)
+    (i32.store offset=4
+      (i32.add
+        (local.get $list)
+        (i32.mul (local.get $index) (i32.const 4))
+      )
+      (local.get $value)
+    )
+  )
+
+  (func $list_length (param $list i32) (result i32)
+    (i32.load (local.get $list))
+  )
+
+  ;; Операции со списками
+  (func $list_concat (param $a i32) (param $b i32) (result i32)
+    (local $len_a i32)
+    (local $len_b i32)
+    (local $result i32)
+    (local $i i32)
+    
+    (local.set $len_a (call $list_length (local.get $a)))
+    (local.set $len_b (call $list_length (local.get $b)))
+    
+    ;; Создаем новый список
+    (local.set $result
+      (call $list_create
+        (i32.add (local.get $len_a) (local.get $len_b))
+      )
+    )
+    
+    ;; Копируем первый список
+    (local.set $i (i32.const 0))
+    (block $copy_a_end
+      (loop $copy_a
+        (br_if $copy_a_end
+          (i32.ge_u (local.get $i) (local.get $len_a))
+        )
+        (call $list_set
+          (local.get $result)
+          (local.get $i)
+          (call $list_get (local.get $a) (local.get $i))
+        )
+        (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (br $copy_a)
+      )
+    )
+    
+    ;; Копируем второй список
+    (local.set $i (i32.const 0))
+    (block $copy_b_end
+      (loop $copy_b
+        (br_if $copy_b_end
+          (i32.ge_u (local.get $i) (local.get $len_b))
+        )
+        (call $list_set
+          (local.get $result)
+          (i32.add (local.get $len_a) (local.get $i))
+          (call $list_get (local.get $b) (local.get $i))
+        )
+        (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (br $copy_b)
+      )
+    )
+    
+    (local.get $result)
+  )
+
+  (func $list_contains (param $list i32) (param $value i32) (result i32)
+    (local $len i32)
+    (local $i i32)
+    
+    (local.set $len (call $list_length (local.get $list)))
+    (local.set $i (i32.const 0))
+    
+    (block $loop_end
+      (loop $loop
+        (br_if $loop_end
+          (i32.ge_u (local.get $i) (local.get $len))
+        )
+        (if
+          (i32.eq
+            (call $list_get (local.get $list) (local.get $i))
+            (local.get $value)
+          )
+          (then
+            (return (i32.const 1))
+          )
+        )
+        (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (br $loop)
+      )
+    )
+    
+    (i32.const 0)
+  )
+
+  ;; Заглушки для отсутствующих функций
+  (func $balance (param $tree i32) (result i32)
+    ;; Заглушка - возвращаем тот же список
+    (local.get $tree)
+  )
+
+  (func $merge (param $a i32) (param $b i32) (result i32)
+    ;; Заглушка - просто объединяем списки
+    (call $list_concat (local.get $a) (local.get $b))
+  )
+  (func $main (export "main")
+    (local $temp i32)
+    (local $temp_list i32)
+    (local $elem_val i32)
+    (local $temp2 i32)
+    (call $list_create (i32.const 5))
+    (local.set $temp)
+    (i32.const 1)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 0)
+    (local.get $elem_val)
+    (call $list_set)
+    (i32.const 2)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 1)
+    (local.get $elem_val)
+    (call $list_set)
+    (i32.const 3)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 2)
+    (local.get $elem_val)
+    (call $list_set)
+    (i32.const 4)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 3)
+    (local.get $elem_val)
+    (call $list_set)
+    (i32.const 5)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 4)
+    (local.get $elem_val)
+    (call $list_set)
+    (local.get $temp)
+    (global.set $list1)
+    (call $list_create (i32.const 5))
+    (local.set $temp)
+    (i32.const 3)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 0)
+    (local.get $elem_val)
+    (call $list_set)
+    (i32.const 4)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 1)
+    (local.get $elem_val)
+    (call $list_set)
+    (i32.const 5)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 2)
+    (local.get $elem_val)
+    (call $list_set)
+    (i32.const 6)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 3)
+    (local.get $elem_val)
+    (call $list_set)
+    (i32.const 7)
+    (local.set $elem_val)
+    (local.get $temp)
+    (i32.const 4)
+    (local.get $elem_val)
+    (call $list_set)
+    (local.get $temp)
+    (global.set $list2)
+    (global.get $list1)
+    (global.get $list2)
+    (call $list_concat)
+    (global.set $concatenated)
+    (global.get $list2)
+    (global.get $list1)
+    (i32.sub)
+    (global.set $difference)
+    (global.get $list1)
+    (global.get $list2)
+    (drop) (drop)
+    (call $list_create (i32.const 0))
+    (global.set $intersection)
+    (call $logStr (i32.const 4096) (i32.const 14))
+    (global.get $concatenated)
+    (call $log)
+    (call $logStr (i32.const 4352) (i32.const 11))
+    (global.get $difference)
+    (call $log)
+    (call $logStr (i32.const 4608) (i32.const 13))
+    (global.get $intersection)
+    (call $log)
+    (global.get $concatenated)
+    (call $list_length)
+    (global.set $element_count)
+    (call $logStr (i32.const 4864) (i32.const 19))
+    (global.get $element_count)
+    (call $log)
+    (global.get $list1)
+    (i32.const 5)
+    (call $list_contains)
+    (if
+      (then
+    (call $logStr (i32.const 5120) (i32.const 24))
+      )
+      (else
+    (call $logStr (i32.const 5376) (i32.const 28))
+      )
+    )
+    (return)
+  )
+  (data (i32.const 4096) "Concatenation:\00")
+  (data (i32.const 4352) "Difference:\00")
+  (data (i32.const 4608) "Intersection:\00")
+  (data (i32.const 4864) "Number of elements:\00")
+  (data (i32.const 5120) "Element 5 found in list1\00")
+  (data (i32.const 5376) "Element 5 not found in list1\00")
+)

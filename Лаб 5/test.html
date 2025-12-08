@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ListLang WASM Test</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { margin: 5px; padding: 10px 15px; font-size: 14px; }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>ListLang WebAssembly Test</h1>
+
+    <div>
+        <button onclick="runWasm()">Run WASM</button>
+        <button onclick="clearOutput()">Clear</button>
+    </div>
+
+    <div>
+        <h3>Output:</h3>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        let wasmInstance = null;
+
+        // Инициализация WebAssembly
+        async function initWasm() {
+            try {
+                // Загружаем WASM файл
+                const response = await fetch('example1.wasm');
+                const bytes = await response.arrayBuffer();
+
+                // Импортируемые функции для WASM
+                const importObject = {
+                    console: {
+                        logInt: (value) => {
+                            log(`Number: ${value}`);
+                        },
+                        logFloat: (value) => {
+                            log(`Float: ${value}`);
+                        },
+                        logStr: (ptr, len) => {
+                            // Получаем память из экземпляра WASM
+                            if (wasmInstance && wasmInstance.exports.memory) {
+                                try {
+                                    const memory = wasmInstance.exports.memory;
+                                    const bytes = new Uint8Array(memory.buffer, ptr, len);
+                                    const str = new TextDecoder().decode(bytes);
+                                    log(`String: "${str}"`);
+                                } catch (e) {
+                                    log(`[String error at ${ptr}, len: ${len}: ${e.message}]`);
+                                }
+                            } else {
+                                log(`[String at ${ptr}, length: ${len}]`);
+                            }
+                        },
+                        log: (ptr) => {
+                            log(`List pointer: ${ptr}`);
+                        }
+                    }
+                };
+
+                // Компиляция и создание экземпляра
+                const { instance } = await WebAssembly.instantiate(bytes, importObject);
+                wasmInstance = instance;
+
+                // Проверяем экспорты
+                const exports = Object.keys(wasmInstance.exports);
+                log(` WASM module loaded`, 'success');
+                log(`Exports: ${exports.join(', ')}`);
+
+                if (wasmInstance.exports.memory) {
+                    const memory = wasmInstance.exports.memory;
+                    const size = memory.buffer.byteLength;
+                    log(`Memory size: ${size} bytes (${Math.round(size/1024)}KB)`);
+                } else {
+                    log(`Warning: Memory not exported by WASM module`, 'error');
+                }
+
+            } catch (error) {
+                log(`Failed to load WASM: ${error}`, 'error');
+                console.error("Full error:", error);
+            }
+        }
+
+        // Запуск WASM кода
+        function runWasm() {
+            if (!wasmInstance) {
+                log("WASM not loaded!", 'error');
+                return;
+            }
+
+            try {
+                log("\n--- Starting program ---");
+
+                // Вызываем main функцию из WASM
+                if (wasmInstance.exports.main) {
+                    wasmInstance.exports.main();
+                    log("Program finished successfully", 'success');
+                } else {
+                    log("Function 'main' not found in exports");
+                    // Покажем все экспорты для отладки
+                    log(`Available exports: ${Object.keys(wasmInstance.exports).join(', ')}`);
+                }
+
+            } catch (error) {
+                log(`Runtime error: ${error}`, 'error');
+                console.error("Full runtime error:", error);
+            }
+        }
+
+        function log(message, className = '') {
+            const output = document.getElementById('output');
+            const line = document.createElement('div');
+            line.textContent = message;
+            if (className) {
+                line.className = className;
+            }
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+
+        // Инициализируем при загрузке страницы
+        window.onload = initWasm;
+    </script>
+</body>
+</html>
